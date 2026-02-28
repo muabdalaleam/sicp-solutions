@@ -1,0 +1,6 @@
+(define (fringe tree)
+  (if (null? tree)
+	  '()
+	  (if (pair? (car tree))
+          (append (fringe (car tree)) (fringe (cdr tree)))
+		  (append (list (car tree)) (fringe (cdr tree))))))

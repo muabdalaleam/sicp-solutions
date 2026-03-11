@@ -1,0 +1,41 @@
+(define (variable? e) 
+  (and (symbol? e)
+	   (not (or (eq? '+ e) 
+				(eq? '* e)))))
+
+(define (sum? e) (eq? (car e) '+))
+(define (mult? e) (eq? (car e) '*))
+
+(define (same-variable? a b) 
+  (and (variable? a) (variable? b) (eq? a b)))
+
+(define (make-sum a b)
+  (let ((expr-sum (list '+ a b)))
+    (cond ((and (number? a) (number? b)) (+ a b))
+  	      ((number? a) (if (= a 0) b expr-sum))
+  		  ((number? b) (if (= b 0) a expr-sum))
+  		  (else expr-sum))))
+
+(define (make-mult a b)
+  (let ((expr-mult (list '* a b)))
+    (cond ((and (number? a) (number? b)) (* a b))
+		  ((number? a) (cond ((= a 0) 0) ((= a 1) b) (else mult-expr)))
+		  ((number? b) (cond ((= b 0) 0) ((= b 1) a) (else mult-expr)))
+  		  (else expr-mult))))
+
+(define (multiplier e) (cadr e))
+(define (multiplicand e) (caddr e))
+(define (addend e) (cadr e))
+(define (augend e) (caddr e))
+
+
+(define (derive expr x)
+  (cond ((same-variable? expr x) 1)
+		((or (number? expr) (variable? expr)) 0)
+		((mult? expr) 
+		 (make-sum (make-mult (multiplier expr) (derive (multiplicand expr) x))
+			       (make-mult (multiplicand expr) (derive (multiplier expr) x))))
+		((sum? expr)
+		 (make-sum (derive (addend expr) x)
+			       (derive (augend expr) x)))
+		(else (display "Unsupported expression type (unable to derive)."))))

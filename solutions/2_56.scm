@@ -1,0 +1,30 @@
+(load "../notes/symbolic_deriv.scm")
+
+(define (exponentiation? e)
+  (eq? (car e) '^))
+
+(define (make-exponentiation b e)
+  (let ((expr (list '^ b e)))
+	(cond ((and (number? b) (number? e)) (expt b e))
+		  ((number? b) (cond ((= b 1) 1) ((= b 0) 0) (else expr)))
+		  ((number? e) (cond ((= e 1) b) ((= e 0) 1) (else expr)))
+		  (else expr))))
+
+(define (base e) (cadr e))
+(define (exponent e) (caddr e))
+
+; Doens't support negative nor decimal exponents
+(define (derive expr x)
+  (cond ((same-variable? expr x) 1)
+		((or (number? expr) (variable? expr)) 0)
+		((mult? expr) 
+		 (make-sum (make-mult (multiplier expr) (derive (multiplicand expr) x))
+			       (make-mult (multiplicand expr) (derive (multiplier expr) x))))
+		((sum? expr)
+		 (make-sum (derive (addend expr) x)
+			       (derive (augend expr) x)))
+		((exponentiation? expr)
+		 (make-mult (make-mult (exponent expr)
+							   (make-exponentiation (base expr) (- (exponent expr) 1)))
+					(derive (base expr) 'x)))
+		(else (display "Unsupported expression type (unable to derive)."))))

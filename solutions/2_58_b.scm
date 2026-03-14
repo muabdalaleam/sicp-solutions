@@ -19,7 +19,6 @@
 (define (unlist-if-single s)
   (if (null? (cdr s)) (car s) s))
 
-
 (define (sum? e) (in? '+ e))
 (define (mult? e) (and (in? '* e) (not (sum? e))))
 
@@ -49,11 +48,10 @@
 (define (multiplicand e)
   (unlist-if-single (after-symbol '* e))) ; XXX:
 
-
 (define (addend e) 
   (unlist-if-single (until-symbol '+ e)))
 
-(define (addend e) 
+(define (augend e) 
   (unlist-if-single (after-symbol '+ e)))
 
 ; (1 + 2 + 3 + 4)
